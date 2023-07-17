@@ -12,6 +12,9 @@ use LaswitchTech\phpLogger\phpLogger;
 // Importing Dependencies
 use DateTime;
 use Exception;
+use ZipArchive;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 
 class phpUpdater {
 
