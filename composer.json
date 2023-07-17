@@ -1,0 +1,22 @@
+{
+    "name": "laswitchtech/php-updater",
+    "description": "Updater Library for PHP Applications. Using GitHub Repository as the source.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "LaswitchTech\\phpUpdater\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Louis Ouellet",
+            "email": "louis_ouellet@hotmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "laswitchtech/php-configurator": "^1.0",
+        "laswitchtech/php-logger": "^1.2"
+    }
+}
