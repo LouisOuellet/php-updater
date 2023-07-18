@@ -249,13 +249,6 @@ class phpUpdater {
     public function backup($filename = null, $exclude = ['tmp', 'backup', 'vendor']){
         try{
 
-            // Check if phpDatabase is installed
-            if($this->Database){
-
-                // Backup Database
-                $this->Database->backup();
-            }
-
             // Set Path to Backup Folder
             $path = $this->Configurator->root() . "/backup";
 
@@ -267,6 +260,15 @@ class phpUpdater {
 			}
 
 			$this->Logger->info("Creating backup to: " . $path . "/" . $filename);
+
+            // Check if phpDatabase is installed
+            if($this->Database){
+
+                // Backup Database
+                $database = $this->Database->backup();
+
+                $this->Logger->info("Creating database backup to: " . $database);
+            }
 
 			// Create the directory recursively
 			if(!is_dir(dirname($path . "/" . $filename))){
