@@ -229,6 +229,24 @@ class phpUpdater {
 	}
 
     /**
+     * Remove Directory Recursively.
+     *
+     * @return string
+     * @throws Exception
+     */
+    private function rmdir($directoryPath) {
+        try{
+            $files = array_diff(scandir($directoryPath), ['.','..']);
+            foreach ($files as $file) {
+                is_dir("$directoryPath/$file") ? $this->rmdir("$directoryPath/$file") : unlink("$directoryPath/$file");
+            }
+            return rmdir($directoryPath);
+        } catch (Exception $e) {
+            $this->Logger->error('Error: '.$e->getMessage());
+        }
+    }
+
+    /**
      * Check for Updates.
      *
      * @return bool
@@ -347,12 +365,16 @@ class phpUpdater {
                 if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
                     continue;
                 }
+
+                if(!file_exists($filePath)) {
+                    continue;
+                }
         
                 // Delete file or directory
                 if ($file->isFile()) {
                     unlink($filePath);
                 } elseif ($file->isDir()) {
-                    rmdir($filePath);
+                    $this->rmdir($filePath);
                 }
             }
 
@@ -368,8 +390,14 @@ class phpUpdater {
             // Close the zip archive
             $zip->close();
 
-            // Return the path to the backup file
-            return $file;
+            // Check if phpDatabase is installed
+            if($this->Database){
+
+                // Backup Database
+                $database = $this->Database->restore();
+
+                $this->Logger->info("Creating database backup to: " . $database);
+            }
         } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
         }
