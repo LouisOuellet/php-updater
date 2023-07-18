@@ -140,6 +140,8 @@ class phpUpdater {
                 throw new Exception("URL is not set.");
             }
 
+            $this->Logger->debug($this->URL);
+
             // Initialize cURL
             $curl = curl_init($this->URL . "/releases/latest");
             curl_setopt($curl, CURLOPT_HTTPHEADER, [
@@ -264,8 +266,6 @@ class phpUpdater {
         if($this->Latest == null || $fetch){
             $this->fetch();
         }
-
-        $this->Logger->debug($this->Latest);
 
         // Check if Latest is set and if the latest release is newer than the current version
         return $this->Latest && $this->Latest['id'] > $this->ID;
