@@ -313,15 +313,21 @@ class phpUpdater {
             foreach ($iterator as $file) {
                 $filePath = $file->getPathname();
                 $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
+
+                $this->Logger->debug("filePath: " . $filePath);
     
                 // Skip excluded folders/files
                 if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
+
+                    $this->Logger->debug("Skipping file: " . $filePath);
                     continue;
                 }
 
                 // Skip excluded folders
                 foreach($exclude as $excludedDir) {
                     if (strpos($relativePath, $excludedDir) === 0) {
+
+                        $this->Logger->debug("Skipping file: " . $filePath);
                         continue 2;
                     }
                 }
@@ -377,15 +383,21 @@ class phpUpdater {
             foreach ($files as $file) {
                 $filePath = $file->getRealPath();
                 $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
+
+                $this->Logger->debug("filePath: " . $filePath);
     
                 // Skip excluded folders/files
                 if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
+
+                    $this->Logger->debug("Skipping file: " . $filePath);
                     continue;
                 }
 
                 // Skip excluded folders
                 foreach($exclude as $excludedDir) {
                     if (strpos($relativePath, $excludedDir) === 0) {
+
+                        $this->Logger->debug("Skipping file: " . $filePath);
                         continue 2;
                     }
                 }
