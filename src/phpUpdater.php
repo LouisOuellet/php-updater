@@ -236,11 +236,17 @@ class phpUpdater {
      */
     private function rmdir($directoryPath) {
         try{
-            $files = array_diff(scandir($directoryPath), ['.','..']);
-            foreach ($files as $file) {
-                is_dir("$directoryPath/$file") ? $this->rmdir("$directoryPath/$file") : unlink("$directoryPath/$file");
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($directoryPath, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+    
+            foreach ($files as $fileinfo) {
+                $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
+                $todo($fileinfo->getRealPath());
             }
-            return rmdir($directoryPath);
+    
+            rmdir($directoryPath);
         } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
         }
@@ -269,7 +275,7 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function backup($filename = null, $exclude = ['tmp', 'backup', 'log']){
+    public function backup($filename = null, $exclude = ['tmp', 'backup']){
         try{
 
             // Set Path to Backup Folder
@@ -337,7 +343,7 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function restore($file = null, $exclude = ['tmp', 'backup', 'log']){
+    public function restore($file = null, $exclude = ['tmp', 'backup']){
         try{
 
 			if($file){
@@ -356,28 +362,23 @@ class phpUpdater {
 
             // Clear the root directory
             // Iterate over all files and directories in the root folder
-            $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->Configurator->root(), RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
-            foreach ($iterator as $file) {
-                $filePath = $file->getPathname();
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($this->Configurator->root(), RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($files as $file) {
+                $filePath = $file->getRealPath();
                 $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
 
-                $this->Logger->debug("filePath: " . $filePath);
-    
                 // Skip excluded folders
                 if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
                     continue;
                 }
 
-                if(!file_exists($filePath)) {
-                    continue;
-                }
-        
                 // Delete file or directory
-                if ($file->isFile()) {
-                    unlink($filePath);
-                } elseif ($file->isDir()) {
-                    $this->rmdir($filePath);
-                }
+                $todo = ($file->isDir() ? [$this, 'rmdir'] : 'unlink');
+                $todo($filePath);
             }
 
 			$this->Logger->info("Restoring backup from file: " . $file);
