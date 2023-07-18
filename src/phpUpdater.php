@@ -198,7 +198,7 @@ class phpUpdater {
 	 * @param  string  $value
 	 * @return boolean
 	 */
-	private function getLastCreatedFile($path, $extension = 'sql') {
+	private function getLastCreatedFile($path, $extension = 'zip') {
 		// Initialize variables to store the name and creation time of the latest file
 		$latestFilePath = '';
 		$latestFileTime = 0;
@@ -234,7 +234,12 @@ class phpUpdater {
      * @return bool
      * @throws Exception
      */
-    public function check(){
+    public function check($fetch = false){
+
+        // Check if Latest is set
+        if($this->Latest == null || $fetch){
+            $this->fetch();
+        }
 
         // Check if Latest is set and if the latest release is newer than the current version
         return $this->Latest && $this->Latest['id'] > $this->ID;
@@ -246,7 +251,7 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function backup($filename = null, $exclude = ['tmp', 'backup', 'vendor']){
+    public function backup($filename = null, $exclude = ['tmp', 'backup']){
         try{
 
             // Set Path to Backup Folder
@@ -314,8 +319,58 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function restore(){
-        try{} catch (Exception $e) {
+    public function restore($file = null, $exclude = ['tmp', 'backup']){
+        try{
+
+			if($file){
+				// Convert file to absolute path
+				$file = $this->Configurator->root() . $file;
+			} else {
+				// Get the last backup file
+				$file = $this->getLastCreatedFile($this->Configurator->root() . "/backup/");
+			}
+
+			if(!file_exists($file)){
+				throw new Exception("File does not exist: " . $file);
+			}
+
+			$this->Logger->info("Clearing root directory.");
+
+            // Clear the root directory
+            // Iterate over all files and directories in the root folder
+            $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->Configurator->root(), RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
+            foreach ($iterator as $file) {
+                $filePath = $file->getPathname();
+                $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
+    
+                // Skip excluded folders
+                if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
+                    continue;
+                }
+        
+                // Delete file or directory
+                if ($file->isFile()) {
+                    unlink($filePath);
+                } elseif ($file->isDir()) {
+                    rmdir($filePath);
+                }
+            }
+
+			$this->Logger->info("Restoring backup from file: " . $file);
+                
+            // Create a new zip archive
+            $zip = new ZipArchive();
+            $zip->open($file);
+
+            // Extract the zip archive
+            $zip->extractTo($this->Configurator->root());
+    
+            // Close the zip archive
+            $zip->close();
+
+            // Return the path to the backup file
+            return $file;
+        } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
         }
     }
