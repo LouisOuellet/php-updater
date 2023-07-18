@@ -62,8 +62,8 @@ class phpUpdater {
         // $this->fetch();
 
         // Check if phpDatabase is installed
-        if (class_exists('LaswitchTech\phpDatabase\phpDatabase')) {
-            $this->Database = new \LaswitchTech\phpDatabase\phpDatabase();
+        if (class_exists('LaswitchTech\phpDB\Database')) {
+            $this->Database = new \LaswitchTech\phpDB\Database();
         }
     }
 
