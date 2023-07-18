@@ -148,6 +148,8 @@ class phpUpdater {
             $curl = curl_init($this->URL . "/releases/latest");
             curl_setopt($curl, CURLOPT_HTTPHEADER, [
                 'Authorization: Bearer ' . $this->Token,
+                'Accept: application/vnd.github+json',
+                'X-GitHub-Api-Version: 2022-11-28',
                 'User-Agent: PHP'
             ]);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -178,6 +180,8 @@ class phpUpdater {
                 $curl = curl_init($this->URL . "/releases");
                 curl_setopt($curl, CURLOPT_HTTPHEADER, [
                     'Authorization: Bearer ' . $this->Token,
+                    'Accept: application/vnd.github+json',
+                    'X-GitHub-Api-Version: 2022-11-28',
                     'User-Agent: PHP'
                 ]);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
