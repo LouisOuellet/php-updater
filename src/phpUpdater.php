@@ -269,7 +269,7 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function backup($filename = null, $exclude = ['tmp', 'backup']){
+    public function backup($filename = null, $exclude = ['tmp', 'backup', 'log']){
         try{
 
             // Set Path to Backup Folder
@@ -337,7 +337,7 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function restore($file = null, $exclude = ['tmp', 'backup']){
+    public function restore($file = null, $exclude = ['tmp', 'backup', 'log']){
         try{
 
 			if($file){
@@ -360,6 +360,8 @@ class phpUpdater {
             foreach ($iterator as $file) {
                 $filePath = $file->getPathname();
                 $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
+
+                $this->Logger->debug("filePath: " . $filePath);
     
                 // Skip excluded folders
                 if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
