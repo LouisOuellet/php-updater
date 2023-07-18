@@ -372,8 +372,10 @@ class phpUpdater {
                 $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
 
                 // Skip excluded folders
-                if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
-                    continue;
+                foreach($exclude as $excludedDir) {
+                    if (strpos($relativePath, $excludedDir) === 0) {
+                        continue 2;
+                    }
                 }
 
                 // Delete file or directory
