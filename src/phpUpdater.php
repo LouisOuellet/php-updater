@@ -58,8 +58,8 @@ class phpUpdater {
         $this->Repository = $this->Configurator->get('updater', 'repository') ?: $this->Repository;
         $this->ID = $this->Configurator->get('updater', 'id') ?: $this->ID;
 
-        // Retrieve Latest Release
-        $this->fetch();
+        // // Retrieve Latest Release
+        // $this->fetch();
 
         // Check if phpDatabase is installed
         if (class_exists('LaswitchTech\phpDatabase\phpDatabase')) {
@@ -192,6 +192,42 @@ class phpUpdater {
         }
     }
 
+	/**
+	 * Helper function to identify the lastest file in a path.
+	 *
+	 * @param  string  $value
+	 * @return boolean
+	 */
+	private function getLastCreatedFile($path, $extension = 'sql') {
+		// Initialize variables to store the name and creation time of the latest file
+		$latestFilePath = '';
+		$latestFileTime = 0;
+	
+		// Create a directory handle
+		$directoryHandle = opendir($path);
+	
+		// If successful in opening the directory
+		if ($directoryHandle) {
+			// Loop over all the files in the directory
+			while (false !== ($entry = readdir($directoryHandle))) {
+				// Skip non-files (like ".", "..", or subdirectories)
+				if (is_file($path . '/' . $entry) && filectime($path . '/' . $entry) > $latestFileTime) {
+
+					// Check if the file extension matches the provided extension
+					$fileExtension = pathinfo($entry, PATHINFO_EXTENSION);
+					if ($fileExtension === $extension) {
+						$latestFilePath = $path . '/' . $entry;
+						$latestFileTime = filectime($latestFilePath);
+					}
+				}
+			}
+			// Close the directory handle
+			closedir($directoryHandle);
+		}
+	
+		return $latestFilePath;
+	}
+
     /**
      * Check for Updates.
      *
@@ -210,7 +246,7 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function backup($filename = null, $exclude = ['tmp', 'backup']){
+    public function backup($filename = null, $exclude = ['tmp', 'backup', 'vendor']){
         try{
 
             // Check if phpDatabase is installed
