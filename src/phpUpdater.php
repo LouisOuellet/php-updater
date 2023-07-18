@@ -142,6 +142,8 @@ class phpUpdater {
 
             $this->Logger->debug($this->URL);
 
+            $this->Logger->debug($this->URL . "/releases/latest");
+
             // Initialize cURL
             $curl = curl_init($this->URL . "/releases/latest");
             curl_setopt($curl, CURLOPT_HTTPHEADER, [
@@ -161,6 +163,17 @@ class phpUpdater {
                 // Save to Object
                 $this->Latest = json_decode($response, true);
 
+                $this->Logger->debug($this->Latest);
+
+                if(!isset($this->Latest['id'])){
+
+                    $message = isset($this->Latest['message']) ? $this->Latest['message'] : "Failed to retrieve the latest release.";
+                    $this->Latest = null;
+                    throw new Exception($message);
+                }
+
+                $this->Logger->debug($this->URL . "/releases");
+
                 // Initialize cURL
                 $curl = curl_init($this->URL . "/releases");
                 curl_setopt($curl, CURLOPT_HTTPHEADER, [
@@ -179,6 +192,8 @@ class phpUpdater {
 
                     // Save to Object
                     $this->Releases = json_decode($response, true);
+
+                    $this->Logger->debug($this->Releases);
                 } else {
     
                     // Handle any errors that occurred during the request
