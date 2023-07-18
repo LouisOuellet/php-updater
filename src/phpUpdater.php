@@ -424,10 +424,10 @@ class phpUpdater {
             // Check if phpDatabase is installed
             if($this->Database){
 
+                $this->Logger->info("Restoring database");
+
                 // Restore Database
                 $database = $this->Database->restore();
-
-                $this->Logger->info("Restoring database from: " . $database);
             }
         } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
@@ -441,7 +441,15 @@ class phpUpdater {
      * @throws Exception
      */
     public function update(){
-        try{} catch (Exception $e) {
+        try{
+
+            if(!$this->check()){
+                throw new Exception("No update available.");
+            }
+
+            $this->Logger->info("Updating to version: " . $this->Latest['id']);
+            $this->Logger->debug($this->Latest);
+        } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
         }
     }
