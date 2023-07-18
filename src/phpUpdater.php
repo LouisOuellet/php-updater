@@ -343,19 +343,19 @@ class phpUpdater {
      * @return string
      * @throws Exception
      */
-    public function restore($file = null, $exclude = ['tmp', 'backup']){
+    public function restore($filename = null, $exclude = ['tmp', 'backup']){
         try{
 
-			if($file){
+			if($filename){
 				// Convert file to absolute path
-				$file = $this->Configurator->root() . $file;
+				$filename = $this->Configurator->root() . $filename;
 			} else {
 				// Get the last backup file
-				$file = $this->getLastCreatedFile($this->Configurator->root() . "/backup/");
+				$filename = $this->getLastCreatedFile($this->Configurator->root() . "/backup/");
 			}
 
-			if(!file_exists($file)){
-				throw new Exception("File does not exist: " . $file);
+			if(!file_exists($filename)){
+				throw new Exception("File does not exist: " . $filename);
 			}
 
 			$this->Logger->info("Clearing root directory.");
@@ -383,12 +383,12 @@ class phpUpdater {
                 $todo($filePath);
             }
 
-			$this->Logger->info("Restoring backup from file: " . $file);
+			$this->Logger->info("Restoring backup from file: " . $filename);
                 
             // Open the zip archive
             $zip = new ZipArchive();
-            if ($zip->open($file) !== TRUE) {
-                throw new Exception("Cannot open the ZIP file: " . $file);
+            if ($zip->open($filename) !== TRUE) {
+                throw new Exception("Cannot open the ZIP file: " . $fifilenamele);
             }
 
             // Extract the zip archive
