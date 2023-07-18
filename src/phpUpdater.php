@@ -385,9 +385,11 @@ class phpUpdater {
 
 			$this->Logger->info("Restoring backup from file: " . $file);
                 
-            // Create a new zip archive
+            // Open the zip archive
             $zip = new ZipArchive();
-            $zip->open($file);
+            if ($zip->open($file) !== TRUE) {
+                throw new Exception("Cannot open the ZIP file: " . $file);
+            }
 
             // Extract the zip archive
             $zip->extractTo($this->Configurator->root());
