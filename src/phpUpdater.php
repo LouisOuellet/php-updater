@@ -265,6 +265,8 @@ class phpUpdater {
             $this->fetch();
         }
 
+        $this->Logger->debug($this->Latest);
+
         // Check if Latest is set and if the latest release is newer than the current version
         return $this->Latest && $this->Latest['id'] > $this->ID;
     }
