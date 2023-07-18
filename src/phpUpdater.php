@@ -132,13 +132,13 @@ class phpUpdater {
                 throw new Exception("Repository is not set.");
             }
 
+            // Build URL
+            $this->URL = "https://api.github.com/repos/" . $this->Owner . "/" . $this->Repository;
+
             // Check if URL is set
             if($this->URL == null){
                 throw new Exception("URL is not set.");
             }
-
-            // Build URL
-            $this->URL = "https://api.github.com/repos/" . $this->Owner . "/" . $this->Repository;
 
             // Initialize cURL
             $curl = curl_init($this->URL . "/releases/latest");
