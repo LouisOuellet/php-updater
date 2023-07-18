@@ -314,9 +314,16 @@ class phpUpdater {
                 $filePath = $file->getPathname();
                 $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
     
-                // Skip excluded folders
+                // Skip excluded folders/files
                 if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
                     continue;
+                }
+
+                // Skip excluded folders
+                foreach($exclude as $excludedDir) {
+                    if (strpos($relativePath, $excludedDir) === 0) {
+                        continue 2;
+                    }
                 }
         
                 // Add file or directory to the zip archive
@@ -370,6 +377,11 @@ class phpUpdater {
             foreach ($files as $file) {
                 $filePath = $file->getRealPath();
                 $relativePath = substr($filePath, strlen($this->Configurator->root()) + 1);
+    
+                // Skip excluded folders/files
+                if (in_array($file->getBasename(), $exclude) || in_array($relativePath, $exclude)) {
+                    continue;
+                }
 
                 // Skip excluded folders
                 foreach($exclude as $excludedDir) {
@@ -400,10 +412,10 @@ class phpUpdater {
             // Check if phpDatabase is installed
             if($this->Database){
 
-                // Backup Database
+                // Restore Database
                 $database = $this->Database->restore();
 
-                $this->Logger->info("Creating database backup to: " . $database);
+                $this->Logger->info("Restoring database from: " . $database);
             }
         } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
