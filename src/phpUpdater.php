@@ -464,12 +464,30 @@ class phpUpdater {
     public function update(){
         try{
 
+            // Check if an update is available
             if(!$this->check()){
                 throw new Exception("No update available.");
             }
 
             $this->Logger->info("Updating to version: " . $this->Latest['id']);
             $this->Logger->debug($this->Latest);
+
+            // Set Filename
+            $filename = $this->Configurator->root() . "/tmp/" . $this->Latest['id'] . ".zip";
+
+			// Create the directory recursively
+			if(!is_dir(dirname($filename))){
+				mkdir(dirname($filename), 0777, true);
+			}
+
+            // Download the update
+            file_put_contents($filename, file_get_contents($this->Latest['zipball_url']));
+
+            // Check if the file was downloaded successfully
+            if (!file_exists($filename)) {
+                throw new Exception("Failed to download the update.");
+            }
+            
         } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
         }
