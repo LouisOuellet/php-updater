@@ -491,6 +491,10 @@ class phpUpdater {
             // Download the update using cURL
             $cURL = curl_init();
             curl_setopt($cURL, CURLOPT_URL, $this->Latest['zipball_url']);
+            curl_setopt($cURL, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $this->Token,
+                'User-Agent: PHP'
+            ]);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURL, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
