@@ -145,20 +145,20 @@ class phpUpdater {
             $this->Logger->debug($this->URL . "/releases/latest");
 
             // Initialize cURL
-            $curl = curl_init($this->URL . "/releases/latest");
-            curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            $cURL = curl_init($this->URL . "/releases/latest");
+            curl_setopt($cURL, CURLOPT_HTTPHEADER, [
                 'Authorization: Bearer ' . $this->Token,
                 'Accept: application/vnd.github+json',
                 'X-GitHub-Api-Version: 2022-11-28',
                 'User-Agent: PHP'
             ]);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
 
             // Execute cURL
-            $response = curl_exec($curl);
+            $response = curl_exec($cURL);
 
             // Close cURL
-            curl_close($curl);
+            curl_close($cURL);
 
             if ($response) {
 
@@ -177,20 +177,20 @@ class phpUpdater {
                 $this->Logger->debug($this->URL . "/releases");
 
                 // Initialize cURL
-                $curl = curl_init($this->URL . "/releases");
-                curl_setopt($curl, CURLOPT_HTTPHEADER, [
+                $cURL = curl_init($this->URL . "/releases");
+                curl_setopt($cURL, CURLOPT_HTTPHEADER, [
                     'Authorization: Bearer ' . $this->Token,
                     'Accept: application/vnd.github+json',
                     'X-GitHub-Api-Version: 2022-11-28',
                     'User-Agent: PHP'
                 ]);
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
     
                 // Execute cURL
-                $response = curl_exec($curl);
+                $response = curl_exec($cURL);
     
                 // Close cURL
-                curl_close($curl);
+                curl_close($cURL);
 
                 if ($response) {
 
@@ -433,7 +433,7 @@ class phpUpdater {
             // Open the zip archive
             $zip = new ZipArchive();
             if ($zip->open($filename) !== TRUE) {
-                throw new Exception("Cannot open the ZIP file: " . $fifilenamele);
+                throw new Exception("Cannot open the ZIP file: " . $filename);
             }
 
             // Extract the zip archive
@@ -456,12 +456,12 @@ class phpUpdater {
     }
 
     /**
-     * Update the current version.
+     * Upgrade the current version.
      *
      * @return void
      * @throws Exception
      */
-    public function update(){
+    public function upgrade(){
         try{
 
             // Check if an update is available
@@ -479,14 +479,6 @@ class phpUpdater {
 			if(!is_dir(dirname($filename))){
 				mkdir(dirname($filename), 0777, true);
 			}
-
-            // // Download the update
-            // file_put_contents($filename, file_get_contents($this->Latest['zipball_url']));
-
-            // // Check if the file was downloaded successfully
-            // if (!file_exists($filename)) {
-            //     throw new Exception("Failed to download the update.");
-            // }
 
             // Download the update using cURL
             $cURL = curl_init();
@@ -514,21 +506,31 @@ class phpUpdater {
                 throw new Exception("Failed to download the update.");
             }
 
+            // Close cURL
             curl_close($cURL);
+                
+            // Open the zip archive
+            $zip = new ZipArchive();
+            if ($zip->open($filename) !== TRUE) {
+                throw new Exception("Cannot open the ZIP file: " . $filename);
+            }
+
+            // Extract the zip archive
+            $zip->extractTo($this->Configurator->root());
+    
+            // Close the zip archive
+            $zip->close();
+
+            // Check if phpDatabase is installed
+            if($this->Database){
+
+                $this->Logger->info("Upgrading database");
+
+                // Restore Database
+                $database = $this->Database->upgrade();
+            }
             
         } catch (Exception $e) {
-            $this->Logger->error('Error: '.$e->getMessage());
-        }
-    }
-
-    /**
-     * Rollback to the last backup.
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function rollback(){
-        try{} catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
         }
     }
