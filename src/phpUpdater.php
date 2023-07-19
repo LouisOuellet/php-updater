@@ -480,13 +480,37 @@ class phpUpdater {
 				mkdir(dirname($filename), 0777, true);
 			}
 
-            // Download the update
-            file_put_contents($filename, file_get_contents($this->Latest['zipball_url']));
+            // // Download the update
+            // file_put_contents($filename, file_get_contents($this->Latest['zipball_url']));
+
+            // // Check if the file was downloaded successfully
+            // if (!file_exists($filename)) {
+            //     throw new Exception("Failed to download the update.");
+            // }
+
+            // Download the update using cURL
+            $cURL = curl_init();
+            curl_setopt($cURL, CURLOPT_URL, $this->Latest['zipball_url']);
+            curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cURL, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
+            $fileData = curl_exec($cURL);
+
+            // Check if the request was successful
+            $httpCode = curl_getinfo($cURL, CURLINFO_HTTP_CODE);
+            if ($httpCode !== 200) {
+                throw new Exception("Failed to download the update. HTTP code: $httpCode");
+            }
+
+            // Save the downloaded file
+            file_put_contents($filename, $fileData);
 
             // Check if the file was downloaded successfully
             if (!file_exists($filename)) {
                 throw new Exception("Failed to download the update.");
             }
+
+            curl_close($cURL);
             
         } catch (Exception $e) {
             $this->Logger->error('Error: '.$e->getMessage());
